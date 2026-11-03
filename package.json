@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "tsx server.ts",
     "start": "node server.ts",
+    "qr": "npx --yes qrcode-terminal \"https://${CODESPACE_NAME}-3000.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}\"",
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",

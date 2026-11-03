@@ -123,7 +123,13 @@ async function startServer() {
   }
 
   app.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`\n🚀 Servidor rodando na porta ${PORT}`);
+    if (process.env.CODESPACE_NAME) {
+      const domain = process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN || 'app.github.dev';
+      const codespaceUrl = `https://${process.env.CODESPACE_NAME}-${PORT}.${domain}`;
+      console.log(`📱 Link do Codespaces: ${codespaceUrl}`);
+      console.log(`⚠️  ATENÇÃO: Na aba "PORTS" do Codespaces, mude a visibilidade da porta ${PORT} de "Private" para "Public" para abrir no celular!\n`);
+    }
   });
 }
 
