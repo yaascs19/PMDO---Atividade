@@ -14,11 +14,24 @@ export const QrCodeModal: React.FC<QrCodeModalProps> = ({ aberto, onFechar }) =>
 
   useEffect(() => {
     if (aberto) {
-      const currentUrl = window.location.href;
-      setUrl(currentUrl);
-      gerarQr(currentUrl);
+      buscarUrlEGerar();
     }
   }, [aberto]);
+
+  const buscarUrlEGerar = async () => {
+    try {
+      const res = await fetch('/api/app-url');
+      const data = await res.json();
+      const appUrl = data.url || window.location.href;
+      setUrl(appUrl);
+      gerarQr(appUrl);
+    } catch {
+      // fallback para URL atual
+      const fallback = window.location.href;
+      setUrl(fallback);
+      gerarQr(fallback);
+    }
+  };
 
   const gerarQr = async (text: string) => {
     try {

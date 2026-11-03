@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
 import fs from 'fs';
+import os from 'os';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -92,6 +93,27 @@ app.delete('/api/alunos/:id', (req: Request, res: Response) => {
   return res.json({ success: true, message: 'Aluno removido com sucesso!', aluno: removido });
 });
 
+// Endpoint auxiliar: retorna a URL pública do app (para QR Code no frontend)
+app.get('/api/app-url', (_req: Request, res: Response) => {
+  const port = process.env.PORT || 3000;
+  if (process.env.CODESPACE_NAME) {
+    const domain = process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN || 'app.github.dev';
+    return res.json({ url: `https://${process.env.CODESPACE_NAME}-${port}.${domain}` });
+  }
+  const nets = os.networkInterfaces();
+  let localIp = 'localhost';
+  for (const iface of Object.values(nets)) {
+    for (const net of iface || []) {
+      if (net.family === 'IPv4' && !net.internal) {
+        localIp = net.address;
+        break;
+      }
+    }
+    if (localIp !== 'localhost') break;
+  }
+  return res.json({ url: `http://${localIp}:${port}` });
+});
+
 // Endpoint auxiliar para resetar a lista de alunos para testes
 app.post('/api/alunos/reset', (_req: Request, res: Response) => {
   alunos = [
@@ -153,12 +175,26 @@ async function startServer() {
 
   const portNumber = Number(PORT);
   app.listen(portNumber, '0.0.0.0', () => {
-    console.log(`\n🚀 Servidor rodando em http://0.0.0.0:${portNumber}`);
+    const nets = os.networkInterfaces();
+    let localIp = 'localhost';
+    for (const iface of Object.values(nets)) {
+      for (const net of iface || []) {
+        if (net.family === 'IPv4' && !net.internal) {
+          localIp = net.address;
+          break;
+        }
+      }
+      if (localIp !== 'localhost') break;
+    }
+    console.log(`\n🚀 Servidor rodando em http://localhost:${portNumber}`);
+    console.log(`📱 Acesso na rede local: http://${localIp}:${portNumber}`);
     if (process.env.CODESPACE_NAME) {
       const domain = process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN || 'app.github.dev';
       const codespaceUrl = `https://${process.env.CODESPACE_NAME}-${portNumber}.${domain}`;
-      console.log(`📱 Link do Codespaces: ${codespaceUrl}`);
-      console.log(`⚠️  ATENÇÃO: Na aba "PORTS" do Codespaces, mude a visibilidade da porta ${portNumber} de "Private" para "Public" para abrir no celular!\n`);
+      console.log(`🌐 Link do Codespaces: ${codespaceUrl}`);
+      console.log(`⚠️  ATENÇÃO: Na aba "PORTS", mude a visibilidade da porta ${portNumber} para "Public"!\n`);
+    } else {
+      console.log(`\n📱 Para abrir no celular, execute: npm run qr\n`);
     }
   });
 }

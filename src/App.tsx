@@ -16,11 +16,8 @@ import {
   Check,
   X,
   Terminal,
-  Smartphone,
-  Maximize2,
   RotateCcw,
   GraduationCap,
-  Sparkles,
   Wifi,
   Battery,
   Layers,
@@ -773,59 +770,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center justify-center p-2 sm:p-4 md:p-6 font-sans">
-      {/* Barra de Controle Externa (Ambiente de Desenvolvimento / Demonstração) */}
-      <div className="w-full max-w-4xl mb-3 flex flex-wrap items-center justify-between gap-3 bg-slate-800/80 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-700/60 text-xs">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center">
-            <GraduationCap className="w-3.5 h-3.5" />
-          </div>
-          <div>
-            <span className="font-bold text-white tracking-tight">PDMO - Trabalho Prático</span>
-            <span className="text-slate-400 ml-2 hidden sm:inline">· CRUD de Alunos (React Native)</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Alternar visualização Mobile / Full */}
-          <button
-            onClick={() => setVisualizacaoMobile(!visualizacaoMobile)}
-            className="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition-colors flex items-center gap-1.5 font-medium"
-            title="Alternar entre moldura de smartphone e visão expandida"
-          >
-            {visualizacaoMobile ? (
-              <>
-                <Maximize2 className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Visão Expandida</span>
-              </>
-            ) : (
-              <>
-                <Smartphone className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Moldura Mobile</span>
-              </>
-            )}
-          </button>
-
-          {/* Botão Abrir no Celular (QR) */}
-          <button
-            onClick={() => setQrModalAberto(true)}
-            className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors flex items-center gap-1.5 font-medium"
-            title="Exibir QR Code para abrir no celular"
-          >
-            <QrCode className="w-3.5 h-3.5" />
-            <span>Abrir no Celular</span>
-          </button>
-
-          {/* Botão Console HTTP */}
-          <button
-            onClick={() => setConsoleAberto(true)}
-            className="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 transition-colors flex items-center gap-1.5 font-medium"
-          >
-            <Terminal className="w-3.5 h-3.5 text-emerald-400" />
-            Logs API
-          </button>
-        </div>
-      </div>
-
       {/* Renderização do App: Moldura Mobile ou Layout Expandido */}
       {visualizacaoMobile ? (
         // Moldura de Smartphone Elegante
