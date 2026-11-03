@@ -22,15 +22,18 @@ export const QrCodeModal: React.FC<QrCodeModalProps> = ({ aberto, onFechar }) =>
 
   const gerarQr = async (text: string) => {
     try {
-      const dataUrl = await QRCode.toDataURL(text, {
-        width: 260,
-        margin: 2,
-        color: {
-          dark: '#0f172a',
-          light: '#ffffff',
-        },
-      });
-      setQrCodeDataUrl(dataUrl);
+      const qrFn = (QRCode as any).toDataURL || (QRCode as any).default?.toDataURL;
+      if (qrFn) {
+        const dataUrl = await qrFn(text, {
+          width: 260,
+          margin: 2,
+          color: {
+            dark: '#0f172a',
+            light: '#ffffff',
+          },
+        });
+        setQrCodeDataUrl(dataUrl);
+      }
     } catch (err) {
       console.error('Erro ao gerar QR Code:', err);
     }
