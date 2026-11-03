@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -111,10 +112,32 @@ async function startServer() {
   if (!isProduction) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        host: '0.0.0.0'
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
+
+    // Servir index.html com Vite transform para qualquer rota SPA
+    app.use('*', async (req: Request, res: Response, next) => {
+      const url = req.originalUrl;
+      if (url.startsWith('/api/')) {
+        return next();
+      }
+      try {
+        const indexPath = path.resolve(__dirname, 'index.html');
+        let template = fs.readFileSync(indexPath, 'utf-8');
+        template = await vite.transformIndexHtml(url, template);
+        res.status(200).set({ 'Content-Type': 'text/html' }).end(template);
+      } catch (e: any) {
+        if (vite.ssrFixStacktrace) {
+          vite.ssrFixStacktrace(e);
+        }
+        next(e);
+      }
+    });
   } else {
     app.use(express.static(path.resolve(__dirname, 'dist')));
     app.get('*', (_req: Request, res: Response) => {
@@ -122,13 +145,14 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, () => {
-    console.log(`\n🚀 Servidor rodando na porta ${PORT}`);
+  const portNumber = Number(PORT);
+  app.listen(portNumber, '0.0.0.0', () => {
+    console.log(`\n🚀 Servidor rodando em http://0.0.0.0:${portNumber}`);
     if (process.env.CODESPACE_NAME) {
       const domain = process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN || 'app.github.dev';
-      const codespaceUrl = `https://${process.env.CODESPACE_NAME}-${PORT}.${domain}`;
+      const codespaceUrl = `https://${process.env.CODESPACE_NAME}-${portNumber}.${domain}`;
       console.log(`📱 Link do Codespaces: ${codespaceUrl}`);
-      console.log(`⚠️  ATENÇÃO: Na aba "PORTS" do Codespaces, mude a visibilidade da porta ${PORT} de "Private" para "Public" para abrir no celular!\n`);
+      console.log(`⚠️  ATENÇÃO: Na aba "PORTS" do Codespaces, mude a visibilidade da porta ${portNumber} de "Private" para "Public" para abrir no celular!\n`);
     }
   });
 }
