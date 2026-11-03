@@ -114,18 +114,24 @@ async function startServer() {
     const vite = await createViteServer({
       server: {
         middlewareMode: true,
-        host: '0.0.0.0'
+        host: '0.0.0.0',
+        hmr: false,
       },
       appType: 'spa',
     });
     app.use(vite.middlewares);
 
-    // Servir index.html com Vite transform para qualquer rota SPA
+    // Servir index.html com Vite transform apenas para navegação HTML (ignora arquivos com extensão como .js/.css)
     app.use('*', async (req: Request, res: Response, next) => {
       const url = req.originalUrl;
-      if (url.startsWith('/api/')) {
+      if (req.method !== 'GET' || url.startsWith('/api/')) {
         return next();
       }
+      // Se tiver extensão de arquivo (.js, .css, .tsx, .svg, etc), deixa o Vite middleware cuidar
+      if (url.includes('.') && !url.endsWith('.html')) {
+        return next();
+      }
+
       try {
         const indexPath = path.resolve(__dirname, 'index.html');
         let template = fs.readFileSync(indexPath, 'utf-8');
