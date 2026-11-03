@@ -8,6 +8,7 @@ import { Aluno, ModoOperacao, HttpLog, AlertState } from './types/aluno';
 import { AlertModal } from './components/AlertModal';
 import { ActivityIndicator } from './components/ActivityIndicator';
 import { HttpConsoleModal } from './components/HttpConsoleModal';
+import { QrCodeModal } from './components/QrCodeModal';
 import {
   UserPlus,
   Edit2,
@@ -23,7 +24,8 @@ import {
   Wifi,
   Battery,
   Layers,
-  Globe
+  Globe,
+  QrCode
 } from 'lucide-react';
 
 // Dados iniciais para o CRUD Local (Fase 1 do PDF)
@@ -52,6 +54,7 @@ export default function App() {
 
   // Estados dos modais auxiliares
   const [consoleAberto, setConsoleAberto] = useState<boolean>(false);
+  const [qrModalAberto, setQrModalAberto] = useState<boolean>(false);
   const [httpLogs, setHttpLogs] = useState<HttpLog[]>([]);
 
   // Estado do Alert (conforme item 2 e 10 do PDF)
@@ -504,6 +507,13 @@ export default function App() {
 
           <div className="flex items-center gap-1.5">
             <button
+              onClick={() => setQrModalAberto(true)}
+              className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              title="Abrir no Celular (QR Code)"
+            >
+              <QrCode className="w-3.5 h-3.5" />
+            </button>
+            <button
               onClick={resetarDados}
               className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
               title="Restaurar dados iniciais"
@@ -795,6 +805,16 @@ export default function App() {
             )}
           </button>
 
+          {/* Botão Abrir no Celular (QR) */}
+          <button
+            onClick={() => setQrModalAberto(true)}
+            className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors flex items-center gap-1.5 font-medium"
+            title="Exibir QR Code para abrir no celular"
+          >
+            <QrCode className="w-3.5 h-3.5" />
+            <span>Abrir no Celular</span>
+          </button>
+
           {/* Botão Console HTTP */}
           <button
             onClick={() => setConsoleAberto(true)}
@@ -838,6 +858,9 @@ export default function App() {
 
       {/* Modal de Alerta Nativo Mobile (Alert.alert do React Native) */}
       <AlertModal alerta={alerta} onFechar={fecharAlerta} />
+
+      {/* Modal de QR Code para abrir no celular */}
+      <QrCodeModal aberto={qrModalAberto} onFechar={() => setQrModalAberto(false)} />
 
       {/* Modal do Inspetor HTTP para depurar as chamadas da Fase 2 */}
       <HttpConsoleModal
